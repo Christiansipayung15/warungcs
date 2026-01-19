@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Toko & Kasir Pintar</title>
+    <style>
+        /* CSS Tambahan untuk Tabel Kasir */
+        .input-kasir-nama, .input-kasir-jumlah {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        .harga-satuan, .sub-total {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* Style Utama Anda */
+        body {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1534723452862-4c874018d66d?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 30px;
+        }
+
+        h2, h3 { color: white; text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; }
+        
+        .top-menu {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            font-size: 13px;
+        }
+
+        .btn-add { background: #2ecc71; color: white; }
+        .btn-save { background: #f1c40f; color: #333; }
+        .btn-edit { background: #3498db; color: white; }
+
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        th { color: #eee; padding: 15px; text-align: left; }
+        td { background: rgba(255, 255, 255, 0.95); padding: 15px; color: #2c3e50; transition: 0.3s; }
+        td:first-child { border-radius: 10px 0 0 10px; }
+        td:last-child { border-radius: 0 10px 10px 0; }
+
+        .locked td { background: rgba(200, 200, 200, 0.9); cursor: not-allowed; }
+
+        .total-box {
+            background: #2ecc71;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border-radius: 8px;
+            height: 48px;
+            box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>WARUNG CS</h2>
+        <div class="top-menu">
+            <button class="btn btn-add" onclick="tambahBaris()">➕ Tambah Baru</button>
+            <button class="btn btn-save" onclick="simpanData()">💾 Simpan Daftar</button>
+            <button class="btn btn-edit" onclick="aktifkanEdit()">✏️ Edit / Ubah Data</button>
+        </div>
+
+        <table id="tabelMaster">
+            <thead>
+                <tr>
+                    <th width="40%">Nama Barang</th>
+                    <th width="30%">Harga (Rp)</th>
+                    <th width="30%">No. Resi</th>
+                </tr>
+            </thead>
+            <tbody id="bodyTabel" class="locked">
+                <tr>
+                    <td contenteditable="false">Beras</td>
+                    <td contenteditable="false">15000</td>
+                    <td contenteditable="false">001</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container" style="border: 2px solid #f1c40f;">
+        <h3>RUANG KASIR</h3>
+        <button class="btn btn-add" onclick="tambahBarisKasir()" style="margin-bottom: 15px;">➕ Tambah Barang Belanja</button>
+        
+        <table id="tabelKasir">
+            <thead>
+                <tr>
+                    <th width="40%">Nama Barang</th>
+                    <th width="15%">Jumlah</th>
+                    <th width="20%">Harga Satuan</th>
+                    <th width="25%">Sub-Total</th>
+                </tr>
+            </thead>
+            <tbody id="bodyKasir">
+                <tr>
+                    <td><input type="text" class="input-kasir-nama" oninput="hitungTransaksi(this)" placeholder="Nama barang..."></td>
+                    <td><input type="number" class="input-kasir-jumlah" oninput="hitungTransaksi(this)" value="1" min="1"></td>
+                    <td class="harga-satuan">Rp 0</td>
+                    <td class="sub-total">Rp 0</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="margin-top: 20px; display: flex; justify-content: flex-end; align-items: center; gap: 20px;">
+            <h3 style="margin: 0; color: white;">Total Belanja:</h3>
+            <div id="grandTotal" class="total-box" style="width: 250px;">Rp 0</div>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGIKA TABEL INVENTARIS ---
+        function tambahBaris() {
+            const table = document.getElementById("bodyTabel");
+            table.classList.remove('locked');
+            const row = table.insertRow(-1);
+            row.innerHTML = `<td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td>`;
+            row.cells[0].focus();
+        }
+
+        function simpanData() {
+            const body = document.getElementById('bodyTabel');
+            localStorage.setItem('dataToko_v3', body.innerHTML);
+            kunciTabel();
+            alert("✅ Data inventaris berhasil disimpan!");
+        }
+
+        function aktifkanEdit() {
+            const body = document.getElementById('bodyTabel');
+            const isLocked = body.classList.contains('locked');
+            if (isLocked) {
+                body.classList.remove('locked');
+                body.querySelectorAll('td').forEach(td => td.setAttribute('contenteditable', 'true'));
+                alert("✏️ Mode Edit Aktif.");
+            } else {
+                simpanData();
+            }
+        }
+
+        function kunciTabel() {
+            const body = document.getElementById('bodyTabel');
+            body.classList.add('locked');
+            body.querySelectorAll('td').forEach(td => td.setAttribute('contenteditable', 'false'));
+        }
+
+        // --- LOGIKA KASIR MULTI-BARANG (BARU) ---
+        function tambahBarisKasir() {
+            const body = document.getElementById("bodyKasir");
+            const row = body.insertRow(-1);
+            row.innerHTML = `
+                <td><input type="text" class="input-kasir-nama" oninput="hitungTransaksi(this)" placeholder="Nama barang..."></td>
+                <td><input type="number" class="input-kasir-jumlah" oninput="hitungTransaksi(this)" value="1" min="1"></td>
+                <td class="harga-satuan">Rp 0</td>
+                <td class="sub-total">Rp 0</td>
+            `;
+        }
+
+        function hitungTransaksi(element) {
+            const row = element.closest('tr');
+            const namaInput = row.querySelector('.input-kasir-nama').value.toLowerCase().trim();
+            const jumlah = row.querySelector('.input-kasir-jumlah').value || 0;
+            
+            const rowsMaster = document.querySelectorAll('#bodyTabel tr');
+            let hargaDitemukan = 0;
+
+            rowsMaster.forEach(mRow => {
+                const namaTabel = mRow.cells[0].innerText.toLowerCase().trim();
+                const hargaTabel = mRow.cells[1].innerText.replace(/[^0-9]/g, '');
+                if (namaInput === namaTabel && namaInput !== "") {
+                    hargaDitemukan = parseInt(hargaTabel);
+                }
+            });
+
+            const subTotal = hargaDitemukan * jumlah;
+            row.querySelector('.harga-satuan').innerText = "Rp " + hargaDitemukan.toLocaleString('id-ID');
+            row.querySelector('.sub-total').innerText = "Rp " + subTotal.toLocaleString('id-ID');
+
+            updateGrandTotal();
+        }
+
+        function updateGrandTotal() {
+            let totalSemua = 0;
+            document.querySelectorAll('.sub-total').forEach(st => {
+                const nilai = parseInt(st.innerText.replace(/[^0-9]/g, '')) || 0;
+                totalSemua += nilai;
+            });
+            document.getElementById('grandTotal').innerText = "Rp " + totalSemua.toLocaleString('id-ID');
+        }
+
+        window.onload = function() {
+            const saved = localStorage.getItem('dataToko_v3');
+            if (saved) {
+                document.getElementById('bodyTabel').innerHTML = saved;
+                kunciTabel();
+            }
+        };
+    </script>
+</body>
+</html>
