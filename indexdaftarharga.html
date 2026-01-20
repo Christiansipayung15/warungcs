@@ -250,6 +250,35 @@
 
 
     <script>
+      // Fungsi untuk menghapus baris tertentu di kasir
+function hapusBarisKasir(btn) {
+    const row = btn.closest("tr");
+    const body = document.getElementById("bodyKasir");
+    
+    // Jangan hapus jika hanya sisa 1 baris, cukup reset isinya
+    if (body.rows.length > 1) {
+        row.remove();
+    } else {
+        row.querySelector(".input-kasir-nama").value = "";
+        row.querySelector(".input-kasir-jumlah").value = 1;
+        row.querySelector(".harga-satuan").innerText = "Rp 0";
+        row.querySelector(".sub-total").innerText = "Rp 0";
+    }
+    updateGrandTotal();
+}
+
+// Update fungsi tambah baris agar menyertakan tombol hapus
+function tambahBarisKasir() {
+    const body = document.getElementById("bodyKasir");
+    const row = body.insertRow(-1);
+    row.innerHTML = `
+        <td><input type="text" class="input-kasir-nama" oninput="hitungTransaksi(this)" placeholder="Nama barang..."></td>
+        <td><input type="number" class="input-kasir-jumlah" oninput="hitungTransaksi(this)" value="1" min="1"></td>
+        <td class="harga-satuan">Rp 0</td>
+        <td class="sub-total">Rp 0</td>
+        <td><button class="btn" style="background:#e74c3c; color:white; padding: 5px 10px;" onclick="hapusBarisKasir(this)">🗑️</button></td>
+    `;
+}
       // --- LOGIKA TABEL INVENTARIS ---
    function hitungKembalian() {
   // Ambil angka dari total belanja (buang teks "Rp" dan titik)
