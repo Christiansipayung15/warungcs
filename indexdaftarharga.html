@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
   <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -8,25 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistem Toko & Kasir Pintar</title>
     <style>
-      /* CSS Tambahan untuk Tabel Kasir */
-      .input-kasir-nama,
-      .input-kasir-jumlah {
-        width: 100%;
-        padding: 8px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        box-sizing: border-box;
-      }
-      .harga-satuan,
-      .sub-total {
-        font-weight: bold;
-        color: #2c3e50;
-      }
-
-      /* Style Utama Anda */
+      /* CSS Utama */
       body {
-        background:
-          linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
           url("https://images.unsplash.com/photo-1534723452862-4c874018d66d?q=80&w=2070&auto=format&fit=crop");
         background-size: cover;
         background-position: center;
@@ -48,12 +32,11 @@
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
         border: 1px solid rgba(255, 255, 255, 0.2);
         width: 100%;
-        max-width: 900px;
+        max-width: 950px;
         margin-bottom: 30px;
       }
 
-      h2,
-      h3 {
+      h2, h3 {
         color: white;
         text-align: center;
         text-transform: uppercase;
@@ -65,8 +48,9 @@
         display: flex;
         gap: 10px;
         margin-bottom: 20px;
-        padding-bottom: 15px;
+        flex-wrap: wrap;
         border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding-bottom: 15px;
       }
 
       .btn {
@@ -77,20 +61,15 @@
         font-weight: bold;
         transition: 0.3s;
         font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
       }
 
-      .btn-add {
-        background: #2ecc71;
-        color: white;
-      }
-      .btn-save {
-        background: #f1c40f;
-        color: #333;
-      }
-      .btn-edit {
-        background: #3498db;
-        color: white;
-      }
+      .btn-add { background: #2ecc71; color: white; }
+      .btn-save { background: #f1c40f; color: #333; }
+      .btn-edit { background: #3498db; color: white; }
+      .btn-danger { background: #e74c3c; color: white; }
 
       .btn:hover {
         transform: translateY(-2px);
@@ -102,27 +81,28 @@
         border-collapse: separate;
         border-spacing: 0 8px;
       }
-      th {
-        color: #eee;
-        padding: 15px;
-        text-align: left;
-      }
+
+      th { color: #eee; padding: 15px; text-align: left; }
       td {
         background: rgba(255, 255, 255, 0.95);
-        padding: 15px;
+        padding: 12px 15px;
         color: #2c3e50;
-        transition: 0.3s;
-      }
-      td:first-child {
-        border-radius: 10px 0 0 10px;
-      }
-      td:last-child {
-        border-radius: 0 10px 10px 0;
       }
 
-      .locked td {
+      td:first-child { border-radius: 10px 0 0 10px; }
+      td:last-child { border-radius: 0 10px 10px 0; }
+
+      .locked td:not(:last-child) {
         background: rgba(200, 200, 200, 0.9);
         cursor: not-allowed;
+      }
+
+      input[type="text"], input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
       }
 
       .total-box {
@@ -132,409 +112,151 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 20px;
+        font-size: 18px;
         border-radius: 8px;
-        height: 48px;
-        box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+        height: 45px;
+        width: 200px;
       }
 
-      @media (max-width: 600px) {
-        .container {
-          padding: 15px;
-        }
-      }
+      .label-kasir { color: white; font-weight: bold; min-width: 150px; }
     </style>
   </head>
   <body>
     <div class="container">
       <h2><u>WARUNG CS</u></h2>
       <div class="top-menu">
-        <button
-          class="btn"
-          style="background: #e74c3c; color: white"
-          onclick="exportPDF()"
-        >
-          📄 Cetak PDF
-        </button>
-        <button class="btn btn-add" onclick="tambahBaris()">
-          ➕ Tambah Baru
-        </button>
-        <button class="btn btn-save" onclick="simpanData()">
-          💾 Simpan Daftar
-        </button>
-        <button class="btn btn-edit" onclick="aktifkanEdit()">
-          ✏️ Edit / Ubah Data
-        </button>
+        <button class="btn btn-add" onclick="tambahBarisInventaris()">➕ Tambah Barang Baru</button>
+        <button class="btn btn-save" onclick="simpanDataInventaris()">💾 Simpan Daftar</button>
+        <button class="btn btn-edit" onclick="aktifkanEditInventaris()">✏️ Edit Data</button>
       </div>
 
       <table id="tabelMaster">
         <thead>
           <tr>
-            <th width="40%">Nama Barang</th>
-            <th width="30%">Harga (Rp)</th>
-            <th width="30%">No. Resi</th>
+            <th width="35%">Nama Barang</th>
+            <th width="25%">Harga (Rp)</th>
+            <th width="25%">No. Resi / Kode</th>
+            <th width="15%">Aksi</th>
           </tr>
         </thead>
         <tbody id="bodyTabel" class="locked">
-          <tr>
-            <td contenteditable="false">Beras</td>
-            <td contenteditable="false">15000</td>
-            <td contenteditable="false">001</td>
-          </tr>
-        </tbody>
+          </tbody>
       </table>
     </div>
 
     <div class="container" style="border: 2px solid #f1c40f">
       <h3>RUANG KASIR</h3>
-      <button
-        class="btn btn-add"
-        onclick="tambahBarisKasir()"
-        style="margin-bottom: 15px"
-      >
-        ➕ Tambah Barang Belanja
-      </button>
-      <button
-        class="btn"
-        style="background: #e67e22; color: white; margin-bottom: 15px"
-        onclick="cetakStrukIndomaret()"
-      >
-        🛒 Cetak Struk 
-      </button>
+      <div class="top-menu">
+        <button class="btn btn-add" onclick="tambahBarisKasir()">➕ Tambah Belanjaan</button>
+        <button class="btn" style="background: #e67e22; color: white" onclick="cetakStrukIndomaret()">🛒 Cetak Struk</button>
+      </div>
 
-    <table id="tabelKasir">
-  <thead>
-    <tr>
-      <th width="35%">Nama Barang</th>
-      <th width="15%">Jumlah</th>
-      <th width="20%">Harga Satuan</th>
-      <th width="20%">Total</th>
-      <th width="10%">Menu Aksi</th> </tr>
-  </thead>
-  <tbody id="bodyKasir">
-    <tr>
-      <td><input type="text" class="input-kasir-nama" oninput="hitungTransaksi(this)" placeholder="Nama barang..."></td>
-      <td><input type="number" class="input-kasir-jumlah" oninput="hitungTransaksi(this)" value="1" min="1"></td>
-      <td class="harga-satuan">Rp 0</td>
-      <td class="sub-total">Rp 0</td>
-      <td><button class="btn" style="background:#e74c3c; color:white; padding: 5px 10px;" onclick="hapusBarisKasir(this)">Hapus</button></td>
-    </tr>
-  </tbody>
-</table>
+      <table id="tabelKasir">
+        <thead>
+          <tr>
+            <th width="30%">Nama Barang</th>
+            <th width="15%">Jumlah</th>
+            <th width="20%">Harga Satuan</th>
+            <th width="20%">Total</th>
+            <th width="15%">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="bodyKasir">
+          <tr>
+            <td><input type="text" class="input-kasir-nama" oninput="hitungTransaksi(this)" placeholder="Ketik nama barang..."></td>
+            <td><input type="number" class="input-kasir-jumlah" oninput="hitungTransaksi(this)" value="1" min="1"></td>
+            <td class="harga-satuan">Rp 0</td>
+            <td class="sub-total">Rp 0</td>
+            <td><button class="btn btn-danger" onclick="hapusBarisKasir(this)">🗑️Hapus</button></td>
+          </tr>
+        </tbody>
+      </table>
+
       <div style="margin-top: 25px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
-  
-  <div style="display: flex; align-items: center; gap: 20px;">
-    <h3 style="margin: 0; color: white; font-size: 16px;">TOTAL BELANJA:</h3>
-    <div id="grandTotal" class="total-box" style="width: 200px;">Rp 0</div>
-  </div>
-
-  <div style="display: flex; align-items: center; gap: 20px;">
-    <h3 style="margin: 0; color: white; font-size: 16px;">UANG BAYAR:</h3>
-    <input 
-      type="number" 
-      id="inputBayar" 
-      class="input-kasir-nama" 
-      style="width: 200px; height: 45px; font-size: 18px; text-align: center; font-weight: bold;" 
-      oninput="hitungKembalian()" 
-      placeholder="0"
-    >
-  </div>
-
-  <div style="display: flex; align-items: center; gap: 20px;">
-    <h3 style="margin: 0; color: white; font-size: 16px;">KEMBALIAN:</h3>
-    <div id="uangKembali" class="total-box" style="width: 200px; background: #e74c3c;">Rp 0</div>
-  </div>
-
-</div>
-
-
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="label-kasir">TOTAL BELANJA:</span>
+          <div id="grandTotal" class="total-box">Rp 0</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="label-kasir">UANG BAYAR:</span>
+          <input type="number" id="inputBayar" style="width: 200px; height: 45px; text-align: center; font-size: 18px; font-weight: bold;" oninput="hitungKembalian()" placeholder="0">
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="label-kasir">KEMBALIAN:</span>
+          <div id="uangKembali" class="total-box" style="background: #e74c3c;">Rp 0</div>
+        </div>
+      </div>
+    </div>
 
     <script>
-      // Fungsi untuk menghapus baris tertentu di kasir
-function hapusBarisKasir(btn) {
-    const row = btn.closest("tr");
-    const body = document.getElementById("bodyKasir");
-    
-    // Jangan hapus jika hanya sisa 1 baris, cukup reset isinya
-    if (body.rows.length > 1) {
-        row.remove();
-    } else {
-        row.querySelector(".input-kasir-nama").value = "";
-        row.querySelector(".input-kasir-jumlah").value = 1;
-        row.querySelector(".harga-satuan").innerText = "Rp 0";
-        row.querySelector(".sub-total").innerText = "Rp 0";
-    }
-    updateGrandTotal();
-}
-
-// Update fungsi tambah baris agar menyertakan tombol hapus
-function tambahBarisKasir() {
-    const body = document.getElementById("bodyKasir");
-    const row = body.insertRow(-1);
-    row.innerHTML = `
-        <td><input type="text" class="input-kasir-nama" oninput="hitungTransaksi(this)" placeholder="Nama barang..."></td>
-        <td><input type="number" class="input-kasir-jumlah" oninput="hitungTransaksi(this)" value="1" min="1"></td>
-        <td class="harga-satuan">Rp 0</td>
-        <td class="sub-total">Rp 0</td>
-        <td><button class="btn" style="background:#e74c3c; color:white; padding: 5px 10px;" onclick="hapusBarisKasir(this)">🗑️</button></td>
-    `;
-}
-      // --- LOGIKA TABEL INVENTARIS ---
-   function hitungKembalian() {
-  // Ambil angka dari total belanja (buang teks "Rp" dan titik)
-  const totalTeks = document.getElementById("grandTotal").innerText.replace(/[^0-9]/g, "");
-  const total = parseInt(totalTeks) || 0;
-  
-  // Ambil angka dari input bayar
-  const bayar = parseInt(document.getElementById("inputBayar").value) || 0;
-  
-  // Hitung selisih
-  const kembalian = bayar - total;
-  
-  // Tampilkan hasil (jika minus tetap tampilkan 0 atau sesuai selisih)
-  const elemenKembali = document.getElementById("uangKembali");
-  elemenKembali.innerText = "Rp " + (kembalian < 0 ? 0 : kembalian).toLocaleString("id-ID");
-  
-  // Opsional: Beri warna merah jika uang kurang
-  elemenKembali.style.background = kembalian < 0 ? "#e74c3c" : "#2980b9";
-}
-
-// Update fungsi updateGrandTotal yang sudah ada agar memicu hitungKembalian
-// Tambahkan baris hitungKembalian() di akhir fungsi updateGrandTotal Anda
-
-// Update juga fungsi updateGrandTotal agar memicu hitung kembalian saat item ditambah/hapus
-function updateGrandTotal() {
-    let totalSemua = 0;
-    document.querySelectorAll(".sub-total").forEach((st) => {
-        const nilai = parseInt(st.innerText.replace(/[^0-9]/g, "")) || 0;
-        totalSemua += nilai;
-    });
-    document.getElementById("grandTotal").innerText = "Rp " + totalSemua.toLocaleString("id-ID");
-    hitungKembalian(); // <--- Tambahkan ini
-}
-
-      function tambahBaris() {
-        const table = document.getElementById("bodyTabel");
-        table.classList.remove("locked");
-        const row = table.insertRow(-1);
-        row.innerHTML = `<td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td>`;
+      // --- LOGIKA INVENTARIS ---
+      function tambahBarisInventaris() {
+        const body = document.getElementById("bodyTabel");
+        body.classList.remove("locked");
+        const row = body.insertRow(-1);
+        row.innerHTML = `
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td contenteditable="true"></td>
+          <td><button class="btn btn-danger" onclick="hapusBarisInventaris(this)">🗑️ Hapus</button></td>
+        `;
         row.cells[0].focus();
       }
-      function exportPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
 
-        // Judul Header
-        doc.setFontSize(18);
-        doc.text("STRUK BELANJA - WARUNG CS", 14, 20);
-
-        doc.setFontSize(11);
-        doc.setTextColor(100);
-        doc.text("Tanggal: " + new Date().toLocaleString("id-ID"), 14, 30);
-
-        // Mengambil data dari tabel kasir
-        const rows = [];
-        const rowsKasir = document.querySelectorAll("#bodyKasir tr");
-
-        rowsKasir.forEach((row) => {
-          const nama = row.querySelector(".input-kasir-nama").value;
-          const jumlah = row.querySelector(".input-kasir-jumlah").value;
-          const harga = row.querySelector(".harga-satuan").innerText;
-          const subtotal = row.querySelector(".sub-total").innerText;
-
-          // Hanya masukkan baris yang ada nama barangnya
-          if (nama) {
-            rows.push([nama, jumlah, harga, subtotal]);
-          }
-        });
-
-        // Membuat Tabel di PDF
-        doc.autoTable({
-          startY: 35,
-          head: [["Nama Barang", "Qty", "Harga Satuan", "Sub-Total"]],
-          body: rows,
-          theme: "striped",
-          headStyles: { fillGray: [44, 62, 80] },
-        });
-
-        // Menambahkan Total Akhir
-        const finalY = doc.lastAutoTable.finalY + 10;
-        const totalBelanja = document.getElementById("grandTotal").innerText;
-
-        doc.setFontSize(14);
-        doc.setTextColor(0);
-        doc.text(`TOTAL PEMBAYARAN: ${totalBelanja}`, 14, finalY);
-
-        // Download PDF
-        doc.save(`Struk_WarungCS_${Date.now()}.pdf`);
-      }
-      function simpanData() {
-        const body = document.getElementById("bodyTabel");
-        localStorage.setItem("dataToko_v3", body.innerHTML);
-        kunciTabel();
-        alert("✅ Data inventaris berhasil disimpan!");
-      }
-      function cetakStrukIndomaret() {
-        const { jsPDF } = window.jspdf;
-
-        // Ukuran kertas thermal 80mm x variabel (tergantung panjang belanja)
-        const doc = new jsPDF({
-          unit: "mm",
-          format: [80, 150],
-        });
-
-        const lebarKertas = 80;
-        const margin = 5;
-        let y = 10;
-
-        // Header Nama Toko
-        doc.setFont("courier", "bold");
-        doc.setFontSize(12);
-        doc.text("WARUNG CS", lebarKertas / 2, y, { align: "center" });
-
-        y += 5;
-        doc.setFontSize(8);
-        doc.setFont("courier", "normal");
-        doc.text("Kavling Kabil Indah Blok A6", lebarKertas / 2, y, {
-          align: "center",
-        });
-
-       y += 4;
-doc.text("BAYAR     :", margin, y);
-doc.text("Rp " + bayar.toLocaleString("id-ID"), lebarKertas - margin, y, { align: "right" });
-
-y += 4;
-doc.text("KEMBALI   :", margin, y);
-doc.text(kembali, lebarKertas - margin, y, { align: "right" });
-
-        // Info Transaksi
-        y += 5;
-        const tgl = new Date().toLocaleString("id-ID");
-        doc.text(`Tgl : ${tgl}`, margin, y);
-        y += 4;
-        doc.text(`Kasir:1`, margin, y);
-        y += 4;
-        doc.text(
-          "------------------------------------------",
-          lebarKertas / 2,
-          y,
-          { align: "center" },
-        );
-
-        // Daftar Barang Belanja
-        y += 5;
-        const rowsKasir = document.querySelectorAll("#bodyKasir tr");
-        let totalItems = 0;
-
-        rowsKasir.forEach((row) => {
-          const nama = row.querySelector(".input-kasir-nama").value;
-          const jumlah = row.querySelector(".input-kasir-jumlah").value;
-          const harga = row
-            .querySelector(".harga-satuan")
-            .innerText.replace("Rp ", "");
-          const subtotal = row
-            .querySelector(".sub-total")
-            .innerText.replace("Rp ", "");
-
-          if (nama) {
-            // Nama Barang (Baris 1)
-            doc.text(nama.toUpperCase(), margin, y);
-            y += 4;
-            // Qty x Harga (Baris 2)
-            doc.text(`${jumlah} x ${harga}`, margin + 2, y);
-            doc.text(subtotal, lebarKertas - margin, y, { align: "right" });
-            y += 5;
-            totalItems += parseInt(jumlah);
-          }
-        });
-
-        // Garis Penutup
-        y += 2;
-        doc.text(
-          "------------------------------------------",
-          lebarKertas / 2,
-          y,
-          { align: "center" },
-        );
-
-        // Total Akhir
-y += 6;
-doc.setFont("courier", "bold");
-const totalBelanja = document.getElementById("grandTotal").innerText;
-const bayar = parseInt(document.getElementById("inputBayar").value) || 0;
-const kembali = document.getElementById("uangKembali").innerText;
-
-// Teks di Struk
-doc.text("TOTAL     :", margin, y);
-doc.text(totalBelanja, lebarKertas - margin, y, { align: "right" });
-
-y += 5;
-doc.text("TUNAI       :", margin, y);
-doc.text("Rp " + uangBayar.toLocaleString("id-ID"), lebarKertas - margin, y, { align: "right" });
-
-y += 5;
-doc.text("KEMBALI     :", margin, y);
-doc.text(uangKembali, lebarKertas - margin, y, { align: "right" });
-
-        // Footer
-        y += 10;
-        doc.setFontSize(8);
-        doc.setFont("courier", "normal");
-        doc.text("TERIMA KASIH", lebarKertas / 2, y, { align: "center" });
-        y += 4;
-        doc.text("Barang yang sudah dibeli", lebarKertas / 2, y, {
-          align: "center",
-        });
-        y += 4;
-        doc.text("tidak dapat ditukar/dikembalikan", lebarKertas / 2, y, {
-          align: "center",
-        });
-
-        // Simpan PDF
-        doc.save(`STRUK_${Date.now()}.pdf`);
-      }
-
-      function aktifkanEdit() {
-        const body = document.getElementById("bodyTabel");
-        const isLocked = body.classList.contains("locked");
-        if (isLocked) {
-          body.classList.remove("locked");
-          body
-            .querySelectorAll("td")
-            .forEach((td) => td.setAttribute("contenteditable", "true"));
-          alert("✏️ Mode Edit Aktif.");
-        } else {
-          simpanData();
+      function hapusBarisInventaris(btn) {
+        if(confirm("Hapus barang ini dari daftar?")) {
+            btn.closest("tr").remove();
+            simpanDataInventaris();
         }
       }
 
-      function kunciTabel() {
+      function aktifkanEditInventaris() {
         const body = document.getElementById("bodyTabel");
-        body.classList.add("locked");
-        body
-          .querySelectorAll("td")
-          .forEach((td) => td.setAttribute("contenteditable", "false"));
+        body.classList.remove("locked");
+        body.querySelectorAll("td:not(:last-child)").forEach(td => td.setAttribute("contenteditable", "true"));
+        alert("✏️ Mode Edit Aktif. Jangan lupa tekan Simpan jika sudah selesai.");
       }
 
-      // --- LOGIKA KASIR MULTI-BARANG (BARU) ---
+      function simpanDataInventaris() {
+        const body = document.getElementById("bodyTabel");
+        // Kita simpan HTML-nya tapi pastikan mode edit dimatikan dulu
+        body.querySelectorAll("td:not(:last-child)").forEach(td => td.setAttribute("contenteditable", "false"));
+        body.classList.add("locked");
+        localStorage.setItem("dataInventaris_V4", body.innerHTML);
+        alert("✅ Data inventaris berhasil disimpan!");
+      }
+
+      // --- LOGIKA KASIR ---
       function tambahBarisKasir() {
         const body = document.getElementById("bodyKasir");
         const row = body.insertRow(-1);
         row.innerHTML = `
-                <td><input type="text" class="input-kasir-nama" oninput="hitungTransaksi(this)" placeholder="Nama barang..."></td>
-                <td><input type="number" class="input-kasir-jumlah" oninput="hitungTransaksi(this)" value="1" min="1"></td>
-                <td class="harga-satuan">Rp 0</td>
-                <td class="sub-total">Rp 0</td>
-            `;
+          <td><input type="text" class="input-kasir-nama" oninput="hitungTransaksi(this)" placeholder="Nama barang..."></td>
+          <td><input type="number" class="input-kasir-jumlah" oninput="hitungTransaksi(this)" value="1" min="1"></td>
+          <td class="harga-satuan">Rp 0</td>
+          <td class="sub-total">Rp 0</td>
+          <td><button class="btn btn-danger" onclick="hapusBarisKasir(this)">🗑️</button></td>
+        `;
+      }
+
+      function hapusBarisKasir(btn) {
+        const row = btn.closest("tr");
+        const body = document.getElementById("bodyKasir");
+        if (body.rows.length > 1) {
+          row.remove();
+        } else {
+          row.querySelector(".input-kasir-nama").value = "";
+          row.querySelector(".input-kasir-jumlah").value = 1;
+          row.querySelector(".harga-satuan").innerText = "Rp 0";
+          row.querySelector(".sub-total").innerText = "Rp 0";
+        }
+        updateGrandTotal();
       }
 
       function hitungTransaksi(element) {
         const row = element.closest("tr");
-        const namaInput = row
-          .querySelector(".input-kasir-nama")
-          .value.toLowerCase()
-          .trim();
-        const jumlah = row.querySelector(".input-kasir-jumlah").value || 0;
+        const namaInput = row.querySelector(".input-kasir-nama").value.toLowerCase().trim();
+        const jumlah = parseInt(row.querySelector(".input-kasir-jumlah").value) || 0;
 
         const rowsMaster = document.querySelectorAll("#bodyTabel tr");
         let hargaDitemukan = 0;
@@ -548,10 +270,8 @@ doc.text(uangKembali, lebarKertas - margin, y, { align: "right" });
         });
 
         const subTotal = hargaDitemukan * jumlah;
-        row.querySelector(".harga-satuan").innerText =
-          "Rp " + hargaDitemukan.toLocaleString("id-ID");
-        row.querySelector(".sub-total").innerText =
-          "Rp " + subTotal.toLocaleString("id-ID");
+        row.querySelector(".harga-satuan").innerText = "Rp " + hargaDitemukan.toLocaleString("id-ID");
+        row.querySelector(".sub-total").innerText = "Rp " + subTotal.toLocaleString("id-ID");
 
         updateGrandTotal();
       }
@@ -562,15 +282,104 @@ doc.text(uangKembali, lebarKertas - margin, y, { align: "right" });
           const nilai = parseInt(st.innerText.replace(/[^0-9]/g, "")) || 0;
           totalSemua += nilai;
         });
-        document.getElementById("grandTotal").innerText =
-          "Rp " + totalSemua.toLocaleString("id-ID");
+        document.getElementById("grandTotal").innerText = "Rp " + totalSemua.toLocaleString("id-ID");
+        hitungKembalian();
+      }
+
+      function hitungKembalian() {
+        const total = parseInt(document.getElementById("grandTotal").innerText.replace(/[^0-9]/g, "")) || 0;
+        const bayar = parseInt(document.getElementById("inputBayar").value) || 0;
+        const kembalian = bayar - total;
+        
+        const elemenKembali = document.getElementById("uangKembali");
+        elemenKembali.innerText = "Rp " + (kembalian < 0 ? 0 : kembalian).toLocaleString("id-ID");
+        elemenKembali.style.background = kembalian < 0 ? "#e74c3c" : "#2ecc71";
+      }
+
+      // --- CETAK STRUK ---
+      function cetakStrukIndomaret() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: "mm", format: [80, 150] });
+        const lebarKertas = 80;
+        const margin = 5;
+        let y = 10;
+
+        doc.setFont("courier", "bold");
+        doc.setFontSize(12);
+        doc.text("WARUNG CS", lebarKertas / 2, y, { align: "center" });
+        y += 5;
+        doc.setFontSize(8);
+        doc.setFont("courier", "normal");
+        doc.text("Kavling Kabil Indah Blok A6", lebarKertas / 2, y, { align: "center" });
+        y += 7;
+        doc.text(`Tgl : ${new Date().toLocaleString("id-ID")}`, margin, y);
+        y += 4;
+        doc.text("------------------------------------------", lebarKertas / 2, y, { align: "center" });
+        y += 5;
+
+        document.querySelectorAll("#bodyKasir tr").forEach((row) => {
+          const nama = row.querySelector(".input-kasir-nama").value;
+          const jumlah = row.querySelector(".input-kasir-jumlah").value;
+          const harga = row.querySelector(".harga-satuan").innerText;
+          const subtotal = row.querySelector(".sub-total").innerText;
+
+          if (nama) {
+            doc.text(nama.toUpperCase(), margin, y);
+            y += 4;
+            doc.text(`${jumlah} x ${harga}`, margin + 2, y);
+            doc.text(subtotal, lebarKertas - margin, y, { align: "right" });
+            y += 5;
+          }
+        });
+
+        y += 2;
+        doc.text("------------------------------------------", lebarKertas / 2, y, { align: "center" });
+        y += 6;
+        doc.setFont("courier", "bold");
+        doc.text("TOTAL     :", margin, y);
+        doc.text(document.getElementById("grandTotal").innerText, lebarKertas - margin, y, { align: "right" });
+        y += 5;
+        doc.text("TUNAI     :", margin, y);
+        doc.text("Rp " + (parseInt(document.getElementById("inputBayar").value) || 0).toLocaleString("id-ID"), lebarKertas - margin, y, { align: "right" });
+        y += 5;
+        doc.text("KEMBALI   :", margin, y);
+        doc.text(document.getElementById("uangKembali").innerText, lebarKertas - margin, y, { align: "right" });
+        
+        y += 10;
+        doc.setFontSize(8);
+        doc.text("TERIMA KASIH", lebarKertas / 2, y, { align: "center"
+          
+         });
+
+     y += 5;
+doc.setFont("courier", "bold");
+doc.text("SELAMAT DATANG KEMBALI", lebarKertas / 2, y, { align: "center" });
+
+y += 8;
+doc.setFontSize(7);
+doc.setFont("courier", "normal"); // Mengatur ke huruf biasa (tidak bold)
+doc.text("barang yang sudah dibeli", lebarKertas / 2, y, { align: "center" }); // Huruf kecil
+
+y += 4;
+doc.text("tidak dapat ditukar/dikembalikan", lebarKertas / 2, y, { align: "center" }); // Huruf kecil
+        doc.save(`STRUK_${Date.now()}.pdf`);
       }
 
       window.onload = function () {
-        const saved = localStorage.getItem("dataToko_v3");
+        const saved = localStorage.getItem("dataInventaris_V4");
+        const body = document.getElementById("bodyTabel");
         if (saved) {
-          document.getElementById("bodyTabel").innerHTML = saved;
-          kunciTabel();
+          body.innerHTML = saved;
+        } else {
+          // Data default jika kosong
+          body.innerHTML = `
+            <tr>
+              <td contenteditable="false">Beras</td>
+              <td contenteditable="false">15000</td>
+              <td contenteditable="false">001</td>
+              <td><button class="btn btn-danger" onclick="hapusBarisInventaris(this)">🗑️ Hapus</button></td>
+            </tr>
+          `;
         }
       };
     </script>
