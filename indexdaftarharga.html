@@ -147,7 +147,7 @@
   </head>
   <body>
     <div class="container">
-      <h2>WARUNG CSs</h2>
+      <h2>WARUNG CS</h2>
       <div class="top-menu">
         <button
           class="btn"
@@ -236,22 +236,69 @@
         </tbody>
       </table>
 
-      <div
-        style="
-          margin-top: 20px;
-          display: flex;
-          justify-content: flex-end;
-          align-items: center;
-          gap: 20px;
-        "
-      >
-        <h3 style="margin: 0; color: white">Total Belanja:</h3>
-        <div id="grandTotal" class="total-box" style="width: 250px">Rp 0</div>
-      </div>
-    </div>
+      <div style="margin-top: 25px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+  
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <h3 style="margin: 0; color: white; font-size: 16px;">TOTAL BELANJA:</h3>
+    <div id="grandTotal" class="total-box" style="width: 200px;">Rp 0</div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <h3 style="margin: 0; color: white; font-size: 16px;">UANG BAYAR:</h3>
+    <input 
+      type="number" 
+      id="inputBayar" 
+      class="input-kasir-nama" 
+      style="width: 200px; height: 45px; font-size: 18px; text-align: center; font-weight: bold;" 
+      oninput="hitungKembalian()" 
+      placeholder="0"
+    >
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <h3 style="margin: 0; color: white; font-size: 16px;">KEMBALIAN:</h3>
+    <div id="uangKembali" class="total-box" style="width: 200px; background: #e74c3c;">Rp 0</div>
+  </div>
+
+</div>
+
+
 
     <script>
       // --- LOGIKA TABEL INVENTARIS ---
+   function hitungKembalian() {
+  // Ambil angka dari total belanja (buang teks "Rp" dan titik)
+  const totalTeks = document.getElementById("grandTotal").innerText.replace(/[^0-9]/g, "");
+  const total = parseInt(totalTeks) || 0;
+  
+  // Ambil angka dari input bayar
+  const bayar = parseInt(document.getElementById("inputBayar").value) || 0;
+  
+  // Hitung selisih
+  const kembalian = bayar - total;
+  
+  // Tampilkan hasil (jika minus tetap tampilkan 0 atau sesuai selisih)
+  const elemenKembali = document.getElementById("uangKembali");
+  elemenKembali.innerText = "Rp " + (kembalian < 0 ? 0 : kembalian).toLocaleString("id-ID");
+  
+  // Opsional: Beri warna merah jika uang kurang
+  elemenKembali.style.background = kembalian < 0 ? "#e74c3c" : "#2980b9";
+}
+
+// Update fungsi updateGrandTotal yang sudah ada agar memicu hitungKembalian
+// Tambahkan baris hitungKembalian() di akhir fungsi updateGrandTotal Anda
+
+// Update juga fungsi updateGrandTotal agar memicu hitung kembalian saat item ditambah/hapus
+function updateGrandTotal() {
+    let totalSemua = 0;
+    document.querySelectorAll(".sub-total").forEach((st) => {
+        const nilai = parseInt(st.innerText.replace(/[^0-9]/g, "")) || 0;
+        totalSemua += nilai;
+    });
+    document.getElementById("grandTotal").innerText = "Rp " + totalSemua.toLocaleString("id-ID");
+    hitungKembalian(); // <--- Tambahkan ini
+}
+
       function tambahBaris() {
         const table = document.getElementById("bodyTabel");
         table.classList.remove("locked");
@@ -338,23 +385,20 @@
           align: "center",
         });
 
-        y += 4;
-        doc.text("", lebarKertas / 2, y, { align: "center" });
+       y += 4;
+doc.text("BAYAR     :", margin, y);
+doc.text("Rp " + bayar.toLocaleString("id-ID"), lebarKertas - margin, y, { align: "right" });
 
-        y += 4;
-        doc.text(
-          "------------------------------------------",
-          lebarKertas / 2,
-          y,
-          { align: "center" },
-        );
+y += 4;
+doc.text("KEMBALI   :", margin, y);
+doc.text(kembali, lebarKertas - margin, y, { align: "right" });
 
         // Info Transaksi
         y += 5;
         const tgl = new Date().toLocaleString("id-ID");
         doc.text(`Tgl : ${tgl}`, margin, y);
         y += 4;
-        doc.text(`Kasir: 1`, margin, y);
+        doc.text(`Kasir:1`, margin, y);
         y += 4;
         doc.text(
           "------------------------------------------",
@@ -400,12 +444,23 @@
         );
 
         // Total Akhir
-        y += 6;
-        doc.setFont("courier", "bold");
-        doc.setFontSize(10);
-        const totalBelanja = document.getElementById("grandTotal").innerText;
-        doc.text("TOTAL BELANJA:", margin, y);
-        doc.text(totalBelanja, lebarKertas - margin, y, { align: "right" });
+y += 6;
+doc.setFont("courier", "bold");
+const totalBelanja = document.getElementById("grandTotal").innerText;
+const bayar = parseInt(document.getElementById("inputBayar").value) || 0;
+const kembali = document.getElementById("uangKembali").innerText;
+
+// Teks di Struk
+doc.text("TOTAL     :", margin, y);
+doc.text(totalBelanja, lebarKertas - margin, y, { align: "right" });
+
+y += 5;
+doc.text("TUNAI       :", margin, y);
+doc.text("Rp " + uangBayar.toLocaleString("id-ID"), lebarKertas - margin, y, { align: "right" });
+
+y += 5;
+doc.text("KEMBALI     :", margin, y);
+doc.text(uangKembali, lebarKertas - margin, y, { align: "right" });
 
         // Footer
         y += 10;
@@ -507,4 +562,3 @@
     </script>
   </body>
 </html>
-
