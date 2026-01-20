@@ -3,79 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Pelanggan</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Login Admin - Warung CS</title>
     <style>
-        /* Tambahan CSS untuk pesan error */
-        .error-message {
-            color: #d81b60;
-            background-color: #fce4ec;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            display: none; /* Sembunyi secara default */
-            font-size: 14px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body, html {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-image: url('https://images.unsplash.com/photo-1534723452862-4c874018d66d?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Overlay gelap */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1;
+        }
+
+        /* CONTAINER PERSEGI - DIKECILKAN SEDIKIT */
+        .login-box {
+            position: relative;
+            z-index: 2;
+            background: white;
+            /* Ukuran diturunkan agar lebih pas */
+            width: 450px; 
+            height: 450px; 
+            padding: 40px;
+            border-radius: 40px; 
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             text-align: center;
-            border: 1px solid #f8bbd0;
+        }
+
+        .login-box h2 {
+            font-size: 28px; /* Disesuaikan dengan ukuran kotak */
+            margin-bottom: 8px;
+            color: #000;
+        }
+
+        .login-box p.desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        /* Opsi Baris */
+        .row-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 13px;
+        }
+
+        .row-options a {
+            color: #d81b60;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* TOMBOL MAGENTA */
+        .btn-masuk {
+            width: 100%;
+            padding: 14px;
+            background-color: #d81b60;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: background 0.3s;
+        }
+
+        .btn-masuk:hover {
+            background-color: #ad1457;
+        }
+
+        .footer-link {
+            font-size: 14px;
+        }
+
+        .footer-link a {
+            color: #d81b60;
+            text-decoration: none;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <form class="login-form" id="loginForm">
-            <h2>Login Admin</h2>
-            <p>Hanya admin yang diperbolehkan login</p>
-            
-            <div id="errorMessage" class="error-message">Kata sandi yang Anda masukkan salah!</div>
-            
-            <div class="input-group">
-                <label for="email">Username:</label>
-                <input type="email" id="email" name="email" placeholder="masukan username anda" required>
+
+    <div class="login-box">
+        <h2>Login Admin</h2>
+        <p class="desc">Hanya admin yang diperbolehkan login</p>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Username:</label>
+                <input type="text" id="username" placeholder="masukan username anda" required>
             </div>
 
-            <div class="input-group">
-                <label for="password">Kata Sandi</label>
-                <input type="password" id="password" name="password" placeholder="Masukkan kata sandi anda" required>
+            <div class="form-group">
+                <label>Kata Sandi</label>
+                <input type="password" id="password" placeholder="Masukkan kata sandi anda" required>
             </div>
 
-            <div class="options">
-                <label><input type="checkbox"> Ingat Saya</label>
+            <div class="row-options">
+                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                    <input type="checkbox"> Ingat Saya
+                </label>
                 <a href="#">Lupa Password?</a>
             </div>
 
-            <button type="submit" class="login-btn">Masuk</button>
+            <button type="submit" class="btn-masuk">Masuk</button>
 
-            <div class="register-link">
-                Belum punya akun? <a href="#">Daftar sekarang</a>
-            </div>
+            <p class="footer-link">Belum punya akun? <a href="#">Daftar sekarang</a></p>
         </form>
     </div>
 
     <script>
-        const loginForm = document.getElementById('loginForm');
-        const errorDiv = document.getElementById('errorMessage');
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
 
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault(); // Mencegah form pindah halaman otomatis
-
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            // ATUR PASSWORD DI SINI (Contoh: farel1@gmail.com dan 123)
-            const emailBenar = "lambok15@gmail.com";
-            const passwordBenar = "sipayung";
-
-            if (email === emailBenar && password === passwordBenar) {
-                // Jika benar, arahkan ke dashboard
+            // Sesuaikan dengan data login Anda
+            if(user === "lambok15@gmail.com" && pass === "sipayung") {
                 window.location.href = "indexdaftarharga.html";
             } else {
-                // Jika salah, tampilkan pesan error
-                errorDiv.style.display = "block";
-                
-                // Opsional: Getarkan input password atau hapus isinya
-                document.getElementById('password').value = "";
+                alert("Username atau Password salah!");
             }
         });
     </script>
 </body>
-</html> 
+</html>
