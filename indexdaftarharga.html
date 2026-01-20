@@ -202,40 +202,25 @@
         🛒 Cetak Struk 
       </button>
 
-      <table id="tabelKasir">
-        <thead>
-          <tr>
-            <th width="40%">Nama Barang</th>
-            <th width="15%">Jumlah Barang</th>
-            <th width="20%">Harga Satuan</th>
-            <th width="25%">Total</th>
-          </tr>
-        </thead>
-        <tbody id="bodyKasir">
-          <tr>
-            <td>
-              <input
-                type="text"
-                class="input-kasir-nama"
-                oninput="hitungTransaksi(this)"
-                placeholder="Nama barang..."
-              />
-            </td>
-            <td>
-              <input
-                type="number"
-                class="input-kasir-jumlah"
-                oninput="hitungTransaksi(this)"
-                value="1"
-                min="1"
-              />
-            </td>
-            <td class="harga-satuan">Rp 0</td>
-            <td class="sub-total">Rp 0</td>
-          </tr>
-        </tbody>
-      </table>
-
+    <table id="tabelKasir">
+  <thead>
+    <tr>
+      <th width="35%">Nama Barang</th>
+      <th width="15%">Jumlah</th>
+      <th width="20%">Harga Satuan</th>
+      <th width="20%">Total</th>
+      <th width="10%">Menu Aksi</th> </tr>
+  </thead>
+  <tbody id="bodyKasir">
+    <tr>
+      <td><input type="text" class="input-kasir-nama" oninput="hitungTransaksi(this)" placeholder="Nama barang..."></td>
+      <td><input type="number" class="input-kasir-jumlah" oninput="hitungTransaksi(this)" value="1" min="1"></td>
+      <td class="harga-satuan">Rp 0</td>
+      <td class="sub-total">Rp 0</td>
+      <td><button class="btn" style="background:#e74c3c; color:white; padding: 5px 10px;" onclick="hapusBarisKasir(this)">Hapus</button></td>
+    </tr>
+  </tbody>
+</table>
       <div style="margin-top: 25px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
   
   <div style="display: flex; align-items: center; gap: 20px;">
