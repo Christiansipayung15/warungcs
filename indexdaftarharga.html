@@ -3,6 +3,8 @@
   <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+<script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -122,6 +124,23 @@
     </style>
   </head>
   <body>
+    <div class="container" style="border: 2px solid #3498db">
+  <h3>SCAN FOTO BARANG (AI)</h3>
+  <div id="video-container" style="text-align: center; margin-bottom: 10px;">
+    </div>
+  
+  <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+    <input type="text" id="labelBaru" placeholder="Nama Barang yg difoto..." style="width: 200px;">
+    <button class="btn btn-add" onclick="latihBarang()">📸 Rekam Foto</button>
+    <button class="btn btn-save" onclick="mulaiTraining()">🧠 Proses Memori AI</button>
+    <button class="btn btn-edit" onclick="mulaiScan()">🔍 Mulai Scan Barang</button>
+  </div>
+  <p id="statusAI" style="color: white; text-align: center; font-size: 12px; margin-top: 10px;">Status: Menyiapkan Kamera...</p>
+</div>
+
+
+
+
     <div class="container">
       <h2><u>WARUNG CS</u></h2>
       <div class="top-menu">
@@ -189,6 +208,80 @@
     </div>
 
     <script>
+      let featureExtractor;
+let classifier;
+let video;
+let loss;
+
+// Inisialisasi Kamera dan AI
+function setup() {
+  // Membuat video di dalam div video-container
+  const canvas = createCanvas(320, 240);
+  canvas.parent('video-container');
+  video = createCapture(VIDEO);
+  video.size(320, 240);
+  video.hide();
+
+  // Memuat MobileNet (Model dasar AI)
+  featureExtractor = ml5.featureExtractor('MobileNet', () => {
+    document.getElementById('statusAI').innerText = "Status: AI Siap. Silakan rekam foto barang.";
+  });
+  
+  // Membuat klasifikasi kustom
+  classifier = featureExtractor.classification(video, () => {
+    console.log("Video Ready");
+  });
+}
+
+function draw() {
+  image(video, 0, 0, 320, 240);
+}
+
+// 1. Fungsi untuk "Mengajari" AI
+function latihBarang() {
+  const nama = document.getElementById('labelBaru').value;
+  if (!nama) return alert("Isi nama barang dulu!");
+  
+  classifier.addImage(nama);
+  document.getElementById('statusAI').innerText = `Status: Menambah foto untuk ${nama}...`;
+}
+
+// 2. Fungsi untuk Memproses Memori (Training)
+function mulaiTraining() {
+  document.getElementById('statusAI').innerText = "Status: Sedang Berpikir (Training)... Mohon Tunggu";
+  classifier.train((lossValue) => {
+    if (lossValue) {
+      loss = lossValue;
+      document.getElementById('statusAI').innerText = `Status: Training... Loss: ${loss}`;
+    } else {
+      document.getElementById('statusAI').innerText = "Status: Selesai! AI sudah kenal barang Anda.";
+    }
+  });
+}
+
+// 3. Fungsi untuk Scan Otomatis
+function mulaiScan() {
+  classifier.classify((err, results) => {
+    if (err) return console.error(err);
+    
+    if (results && results[0]) {
+      const namaHasilScan = results[0].label;
+      const keyakinan = Math.round(results[0].confidence * 100);
+      
+      document.getElementById('statusAI').innerText = `Terdeteksi: ${namaHasilScan} (${keyakinan}%)`;
+      
+      // Masukkan ke baris kasir terakhir
+      const barisTerakhir = document.querySelector("#bodyKasir tr:last-child");
+      const inputNama = barisTerakhir.querySelector(".input-kasir-nama");
+      
+      inputNama.value = namaHasilScan;
+      hitungTransaksi(inputNama); // Jalankan fungsi hitung harga yang sudah Anda buat
+    }
+    
+    // Scan berulang terus menerus
+    setTimeout(mulaiScan, 1000);
+  });
+}
       // --- LOGIKA INVENTARIS ---
       function tambahBarisInventaris() {
         const body = document.getElementById("bodyTabel");
