@@ -3,6 +3,9 @@
   <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -180,6 +183,14 @@
 
     <div class="container" style="border: 2px solid #f1c40f">
       <h3>RUANG KASIR</h3>
+      <div id="reader" style="width: 100%; max-width: 400px; margin: 10px auto; display: none; border-radius: 10px; overflow: hidden;"></div>
+<div style="text-align: center; margin-bottom: 10px;">
+  <button id="btnScan" class="btn btn-camera" onclick="mulaiScan()">🔍 Mode Scan Barcode</button>
+  <button id="btnStopScan" class="btn btn-danger" onclick="stopScan()" style="display:none;">🛑 Berhenti Scan</button>
+</div>
+
+
+
       <div class="top-menu">
         <button class="btn btn-add" onclick="tambahBarisKasir()">➕ Tambah Belanjaan</button>
         <button class="btn" style="background: #e67e22; color: white" onclick="cetakStrukIndomaret()">🛒 Cetak Struk</button>
@@ -451,6 +462,103 @@
           `;
         }
       };
+      let html5QrCode;
+
+async function mulaiScan() {
+    document.getElementById('reader').style.display = 'block';
+    document.getElementById('btnScan').style.display = 'none';
+    document.getElementById('btnStopScan').style.display = 'inline-flex';
+
+    html5QrCode = new Html5Qrcode("reader");
+    const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+
+    try {
+        await html5QrCode.start(
+            { facingMode: "environment" }, 
+            config,
+            (decodedText) => {
+                // Bunyi Beep Sederhana
+                playBeep();
+                prosesHasilScan(decodedText);
+            }
+        );
+    } catch (err) {
+        alert("Kamera tidak ditemukan atau izin ditolak.");
+        stopScan();
+    }
+}
+
+function stopScan() {
+    if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+            document.getElementById('reader').style.display = 'none';
+            document.getElementById('btnScan').style.display = 'inline-flex';
+            document.getElementById('btnStopScan').style.display = 'none';
+        });
+    }
+}
+
+function prosesHasilScan(kode) {
+    const rowsMaster = document.querySelectorAll("#bodyTabel tr");
+    let barangDitemukan = null;
+
+    // Cari di tabel inventaris berdasarkan No. Resi / Kode (Kolom ke-4)
+    rowsMaster.forEach((mRow) => {
+        const kodeTabel = mRow.cells[3].innerText.trim();
+        if (kode === kodeTabel) {
+            barangDitemukan = {
+                nama: mRow.cells[1].innerText.trim(),
+                harga: mRow.cells[2].innerText.replace(/[^0-9]/g, "")
+            };
+        }
+    });
+
+    if (barangDitemukan) {
+        tambahBarisKasirOtomatis(barangDitemukan.nama, barangDitemukan.harga);
+    } else {
+        console.log("Kode tidak terdaftar: " + kode);
+    }
+}
+
+function tambahBarisKasirOtomatis(nama, harga) {
+    const body = document.getElementById("bodyKasir");
+    
+    // Cek apakah barang sudah ada di daftar kasir, jika ada tinggal tambah jumlah
+    let existingRow = null;
+    document.querySelectorAll(".input-kasir-nama").forEach(input => {
+        if (input.value.toLowerCase() === nama.toLowerCase()) {
+            existingRow = input.closest("tr");
+        }
+    });
+
+    if (existingRow) {
+        const inputJumlah = existingRow.querySelector(".input-kasir-jumlah");
+        inputJumlah.value = parseInt(inputJumlah.value) + 1;
+        hitungTransaksi(inputJumlah);
+    } else {
+        // Jika belum ada, buat baris baru
+        const row = body.insertRow(-1);
+        row.innerHTML = `
+            <td><input type="text" class="input-kasir-nama" value="${nama}" oninput="hitungTransaksi(this)"></td>
+            <td><input type="number" class="input-kasir-jumlah" oninput="hitungTransaksi(this)" value="1" min="1"></td>
+            <td class="harga-satuan">Rp ${parseInt(harga).toLocaleString("id-ID")}</td>
+            <td class="sub-total">Rp ${parseInt(harga).toLocaleString("id-ID")}</td>
+            <td><button class="btn btn-danger" onclick="hapusBarisKasir(this)">🗑️</button></td>
+        `;
+        updateGrandTotal();
+    }
+}
+
+// Opsional: Suara Beep saat berhasil scan
+function playBeep() {
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = context.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(880, context.currentTime);
+    osc.connect(context.destination);
+    osc.start();
+    osc.stop(context.currentTime + 0.1);
+}
     </script>
   </body>
 </html>
