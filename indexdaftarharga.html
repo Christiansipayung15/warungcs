@@ -498,53 +498,66 @@ function stopScan() {
     }
 }
 
+// 1. FUNGSI UTAMA SAAT SCAN BERHASIL
 function prosesHasilScan(kode) {
     const rowsMaster = document.querySelectorAll("#bodyTabel tr");
     let barangDitemukan = null;
 
-    // Cari di tabel inventaris berdasarkan No. Resi / Kode (Kolom ke-4)
+    // Cari kode di Tabel Inventaris (Kolom ke-4 / index 3)
     rowsMaster.forEach((mRow) => {
+        // Ambil teks kode, hapus spasi kosong di depan/belakang
         const kodeTabel = mRow.cells[3].innerText.trim();
-        if (kode === kodeTabel) {
+        
+        if (kode.trim() === kodeTabel && kodeTabel !== "") {
             barangDitemukan = {
                 nama: mRow.cells[1].innerText.trim(),
-                harga: mRow.cells[2].innerText.replace(/[^0-9]/g, "")
+                // Ambil hanya angka dari harga
+                harga: parseInt(mRow.cells[2].innerText.replace(/\D/g, "")) || 0
             };
         }
     });
 
     if (barangDitemukan) {
-        tambahBarisKasirOtomatis(barangDitemukan.nama, barangDitemukan.harga);
+        playBeep(); // Bunyi sukses
+        tambahKeTabelKasir(barangDitemukan);
     } else {
-        console.log("Kode tidak terdaftar: " + kode);
+        alert("Kode Barang '" + kode + "' tidak ditemukan di Inventaris!");
     }
 }
 
-function tambahBarisKasirOtomatis(nama, harga) {
+// 2. FUNGSI UNTUK MEMASUKKAN DATA KE TABEL KASIR
+function tambahKeTabelKasir(barang) {
     const body = document.getElementById("bodyKasir");
-    
-    // Cek apakah barang sudah ada di daftar kasir, jika ada tinggal tambah jumlah
-    let existingRow = null;
-    document.querySelectorAll(".input-kasir-nama").forEach(input => {
-        if (input.value.toLowerCase() === nama.toLowerCase()) {
-            existingRow = input.closest("tr");
+    let barisAda = false;
+
+    // Cek apakah barang sudah ada di list kasir? Kalau ada, tambah jumlahnya saja
+    const inputsNama = document.querySelectorAll(".input-kasir-nama");
+    inputsNama.forEach(input => {
+        if (input.value.toLowerCase() === barang.nama.toLowerCase()) {
+            const row = input.closest("tr");
+            const inputJumlah = row.querySelector(".input-kasir-jumlah");
+            inputJumlah.value = parseInt(inputJumlah.value) + 1;
+            
+            // Picu hitung transaksi untuk baris ini
+            hitungTransaksi(inputJumlah); 
+            barisAda = true;
         }
     });
 
-    if (existingRow) {
-        const inputJumlah = existingRow.querySelector(".input-kasir-jumlah");
-        inputJumlah.value = parseInt(inputJumlah.value) + 1;
-        hitungTransaksi(inputJumlah);
-    } else {
-        // Jika belum ada, buat baris baru
+    // Jika barang BELUM ada di list kasir, buat baris baru
+    if (!barisAda) {
         const row = body.insertRow(-1);
+        const subTotal = barang.harga * 1;
+        
         row.innerHTML = `
-            <td><input type="text" class="input-kasir-nama" value="${nama}" oninput="hitungTransaksi(this)"></td>
-            <td><input type="number" class="input-kasir-jumlah" oninput="hitungTransaksi(this)" value="1" min="1"></td>
-            <td class="harga-satuan">Rp ${parseInt(harga).toLocaleString("id-ID")}</td>
-            <td class="sub-total">Rp ${parseInt(harga).toLocaleString("id-ID")}</td>
+            <td><input type="text" class="input-kasir-nama" value="${barang.nama}" oninput="hitungTransaksi(this)"></td>
+            <td><input type="number" class="input-kasir-jumlah" value="1" min="1" oninput="hitungTransaksi(this)"></td>
+            <td class="harga-satuan">Rp ${barang.harga.toLocaleString("id-ID")}</td>
+            <td class="sub-total">Rp ${subTotal.toLocaleString("id-ID")}</td>
             <td><button class="btn btn-danger" onclick="hapusBarisKasir(this)">🗑️</button></td>
         `;
+        
+        // Update total keseluruhan
         updateGrandTotal();
     }
 }
