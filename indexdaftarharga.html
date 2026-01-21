@@ -276,29 +276,93 @@
 
         // --- CETAK STRUK ---
         function cetakStrukIndomaret() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ unit: "mm", format: [80, 150] });
-            let y = 10;
-            doc.setFont("courier", "bold");
-            doc.text("WARUNG CS", 40, y, { align: "center" });
-            y += 10;
-            document.querySelectorAll("#bodyKasir tr").forEach(row => {
-                const nama = row.querySelector(".input-kasir-nama").value;
-                const qty = row.querySelector(".input-kasir-jumlah").value;
-                const sub = row.querySelector(".sub-total").innerText;
-                if(nama) {
-                    doc.setFontSize(8);
-                    doc.text(`${nama} x${qty}`, 5, y);
-                    doc.text(sub, 75, y, { align: "right" });
-                    y += 5;
-                }
-            });
-            doc.text("--------------------------", 40, y, { align: "center" });
-            y += 5;
-            doc.text("TOTAL: " + document.getElementById("grandTotal").innerText, 75, y, { align: "right" });
-            doc.save("Struk.pdf");
-        }
+        const { jsPDF } = window.jspdf;
+        // Ukuran kertas thermal standar 58mm atau 80mm
+        const doc = new jsPDF({ unit: "mm", format: [80, 180] });
+        const lebarKertas = 80;
+        const margin = 5;
+        let y = 10;
 
+        // --- HEADER ---
+        doc.setFont("courier", "bold");
+        doc.setFontSize(12);
+        doc.text("WARUNG CS", lebarKertas / 2, y, { align: "center" });
+        y += 5;
+        doc.setFontSize(8);
+        doc.setFont("courier", "normal");
+        doc.text("Kavling Kabil Indah Blok A6", lebarKertas / 2, y, { align: "center" });
+        y += 4;
+        doc.text("Batam, Kepulauan Riau", lebarKertas / 2, y, { align: "center" });
+        y += 7;
+
+        // Info Transaksi
+        const sekarang = new Date();
+        const tgl = sekarang.toLocaleDateString("id-ID");
+        const jam = sekarang.toLocaleTimeString("id-ID");
+        doc.text(`Tgl : ${tgl} ${jam}`, margin, y);
+        y += 4;
+        doc.text(`Kasir : Admin`, margin, y);
+        y += 4;
+        doc.text("-".repeat(45), lebarKertas / 2, y, { align: "center" });
+        y += 5;
+
+        // --- DAFTAR BARANG ---
+        document.querySelectorAll("#bodyKasir tr").forEach((row) => {
+          const nama = row.querySelector(".input-kasir-nama").value;
+          const jumlah = row.querySelector(".input-kasir-jumlah").value;
+          const hargaRaw = row.querySelector(".harga-satuan").innerText;
+          const subtotal = row.querySelector(".sub-total").innerText;
+
+          if (nama) {
+            // Nama Barang (Uppercase agar tegas)
+            doc.setFont("courier", "normal");
+            doc.text(nama.toUpperCase(), margin, y);
+            y += 4;
+            
+            // Detail Harga: Qty x Harga Satuan di kiri, Subtotal di kanan
+            doc.text(`${jumlah} x ${hargaRaw}`, margin + 2, y);
+            doc.text(subtotal, lebarKertas - margin, y, { align: "right" });
+            y += 5;
+          }
+        });
+
+        // --- FOOTER / TOTAL ---
+        y += 2;
+        doc.text("-".repeat(45), lebarKertas / 2, y, { align: "center" });
+        y += 6;
+        
+        doc.setFont("courier", "bold");
+        doc.text("TOTAL BELANJA :", margin, y);
+        doc.text(document.getElementById("grandTotal").innerText, lebarKertas - margin, y, { align: "right" });
+        
+        y += 5;
+        doc.setFont("courier", "normal");
+        doc.text("TUNAI         :", margin, y);
+        const bayar = "Rp " + (parseInt(document.getElementById("inputBayar").value) || 0).toLocaleString("id-ID");
+        doc.text(bayar, lebarKertas - margin, y, { align: "right" });
+        
+        y += 5;
+        doc.text("KEMBALI       :", margin, y);
+        doc.text(document.getElementById("uangKembali").innerText, lebarKertas - margin, y, { align: "right" });
+        
+        // --- PESAN PENUTUP ---
+        y += 12;
+        doc.setFontSize(9);
+        doc.setFont("courier", "bold");
+        doc.text("TERIMA KASIH", lebarKertas / 2, y, { align: "center" });
+        y += 5;
+        doc.text("SELAMAT DATANG KEMBALI", lebarKertas / 2, y, { align: "center" });
+
+        y += 8;
+        doc.setFontSize(7);
+        doc.setFont("courier", "normal");
+        doc.text("Barang yang sudah dibeli", lebarKertas / 2, y, { align: "center" });
+        y += 4;
+        doc.text("tidak dapat ditukar/dikembalikan", lebarKertas / 2, y, { align: "center" });
+
+        // Auto download dengan nama unik berdasarkan waktu
+        doc.save(`STRUK_${Date.now()}.pdf`);
+      }
         window.onload = () => {
             const saved = localStorage.getItem("dataInventaris_V5");
             if (saved) document.getElementById("bodyTabel").innerHTML = saved;
