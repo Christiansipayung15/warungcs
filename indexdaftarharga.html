@@ -5,56 +5,132 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
 
+
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sistem Toko & Kasir Pintar - Full Version</title>
+    <title>Sistem Toko & Kasir Pintar</title>
     <style>
+      /* CSS Utama */
       body {
         background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
           url("https://images.unsplash.com/photo-1534723452862-4c874018d66d?q=80&w=2070&auto=format&fit=crop");
-        background-size: cover; background-position: center; background-attachment: fixed;
-        font-family: "Segoe UI", sans-serif; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; min-height: 100vh; margin: 0;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        font-family: "Segoe UI", sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 20px;
+        min-height: 100vh;
+        margin: 0;
       }
+
       .container {
-        background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); padding: 30px; border-radius: 20px;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.2); width: 100%; max-width: 950px; margin-bottom: 30px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        width: 100%;
+        max-width: 950px;
+        margin-bottom: 30px;
       }
-      h2, h3 { color: white; text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; }
-      .top-menu { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; border-bottom: 1px solid rgba(255, 255, 255, 0.2); padding-bottom: 15px; }
-      .btn { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 13px; display: flex; align-items: center; gap: 5px; }
+
+      h2, h3 {
+        color: white;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-top: 0;
+      }
+
+      .top-menu {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding-bottom: 15px;
+      }
+
+      .btn {
+        padding: 10px 18px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
       .btn-add { background: #2ecc71; color: white; }
       .btn-save { background: #f1c40f; color: #333; }
       .btn-edit { background: #3498db; color: white; }
       .btn-danger { background: #e74c3c; color: white; }
-      .btn-camera { background: #9b59b6; color: white; }
-      .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
-      table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+      }
+
       th { color: #eee; padding: 15px; text-align: left; }
-      td { background: rgba(255, 255, 255, 0.95); padding: 12px 15px; color: #2c3e50; }
+      td {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 12px 15px;
+        color: #2c3e50;
+      }
+
       td:first-child { border-radius: 10px 0 0 10px; }
       td:last-child { border-radius: 0 10px 10px 0; }
-      .locked td:not(:last-child) { background: rgba(200, 200, 200, 0.9); cursor: not-allowed; }
-      input[type="text"], input[type="number"] { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
-      .total-box { background: #2ecc71; color: white; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 18px; border-radius: 8px; height: 45px; width: 200px; }
+
+      .locked td:not(:last-child) {
+        background: rgba(200, 200, 200, 0.9);
+        cursor: not-allowed;
+      }
+
+      input[type="text"], input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+      }
+
+      .total-box {
+        background: #2ecc71;
+        color: white;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        border-radius: 8px;
+        height: 45px;
+        width: 200px;
+      }
+
       .label-kasir { color: white; font-weight: bold; min-width: 150px; }
-      .img-thumbnail { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; border: 1px solid #ddd; }
-      #cameraModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
-      #video { width: 90%; max-width: 400px; border-radius: 15px; border: 3px solid #f1c40f; }
-      #reader { width: 100%; max-width: 400px; margin: 0 auto 15px; border-radius: 10px; overflow: hidden; display: none; }
     </style>
   </head>
   <body>
-    <div id="cameraModal">
-      <video id="video" autoplay playsinline></video>
-      <div style="margin-top: 20px; display: flex; gap: 10px;">
-        <button class="btn btn-danger" onclick="stopCamera()">Batal</button>
-        <button class="btn btn-add" onclick="takeSnapshot()">📸 Jepret Foto</button>
-      </div>
-      <canvas id="canvas" style="display:none;"></canvas>
-    </div>
-
     <div class="container">
       <h2><u>WARUNG CS</u></h2>
+      <div id="reader-container" style="display:none; margin-bottom: 20px; border: 2px solid #3498db; border-radius: 10px; overflow: hidden;">
+    <div id="reader" style="width: 100%;"></div>
+    <button class="btn btn-danger" style="width: 100%; border-radius: 0;" onclick="stopScanner()">❌ Tutup Kamera</button>
+</div>
       <div class="top-menu">
         <button class="btn btn-add" onclick="tambahBarisInventaris()">➕ Tambah Barang Baru</button>
         <button class="btn btn-save" onclick="simpanDataInventaris()">💾 Simpan Daftar</button>
@@ -64,23 +140,21 @@
       <table id="tabelMaster">
         <thead>
           <tr>
-            <th width="10%">Foto</th>
-            <th width="30%">Nama Barang</th>
-            <th width="20%">Harga (Rp)</th>
+            <th width="35%">Nama Barang</th>
+            <th width="25%">Harga (Rp)</th>
             <th width="25%">No. Resi / Kode</th>
             <th width="15%">Aksi</th>
           </tr>
         </thead>
-        <tbody id="bodyTabel" class="locked"></tbody>
+        <tbody id="bodyTabel" class="locked">
+          </tbody>
       </table>
     </div>
 
     <div class="container" style="border: 2px solid #f1c40f">
       <h3>RUANG KASIR</h3>
-      <div id="reader"></div> <div class="top-menu">
-        <button id="btnStartScan" class="btn btn-camera" onclick="mulaiScanBarcode()">🔍 Mulai Scan Barcode</button>
-        <button id="btnStopScan" class="btn btn-danger" onclick="stopScanBarcode()" style="display:none">🛑 Berhenti Scan</button>
-        <button class="btn btn-add" onclick="tambahBarisKasir()">➕ Tambah Manual</button>
+      <div class="top-menu">
+        <button class="btn btn-add" onclick="tambahBarisKasir()">➕ Tambah Belanjaan</button>
         <button class="btn" style="background: #e67e22; color: white" onclick="cetakStrukIndomaret()">🛒 Cetak Struk</button>
       </div>
 
@@ -94,7 +168,15 @@
             <th width="15%">Aksi</th>
           </tr>
         </thead>
-        <tbody id="bodyKasir"></tbody>
+        <tbody id="bodyKasir">
+          <tr>
+            <td><input type="text" class="input-kasir-nama" oninput="hitungTransaksi(this)" placeholder="Ketik nama barang..."></td>
+            <td><input type="number" class="input-kasir-jumlah" oninput="hitungTransaksi(this)" value="1" min="1"></td>
+            <td class="harga-satuan">Rp 0</td>
+            <td class="sub-total">Rp 0</td>
+            <td><button class="btn btn-danger" onclick="hapusBarisKasir(this)">🗑️Hapus</button></td>
+          </tr>
+        </tbody>
       </table>
 
       <div style="margin-top: 25px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
@@ -114,141 +196,22 @@
     </div>
 
     <script>
-      let currentImgElement = null;
-      let html5QrCode = null;
-
-      // --- LOGIKA SCAN BARCODE (FITUR BARU) ---
-      async function mulaiScanBarcode() {
-          document.getElementById('reader').style.display = 'block';
-          document.getElementById('btnStartScan').style.display = 'none';
-          document.getElementById('btnStopScan').style.display = 'inline-flex';
-
-          html5QrCode = new Html5Qrcode("reader");
-          const config = { fps: 10, qrbox: { width: 250, height: 150 } };
-
-          try {
-              await html5QrCode.start(
-                  { facingMode: "environment" }, 
-                  config,
-                  (decodedText) => {
-                      cariDanTambahKeKasir(decodedText);
-                      // Bunyi Beep singkat
-                      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                      const osc = audioCtx.createOscillator();
-                      osc.type = 'sine'; osc.frequency.value = 880;
-                      osc.connect(audioCtx.destination);
-                      osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-                  }
-              );
-          } catch (err) {
-              alert("Gagal akses kamera scan: " + err);
-              stopScanBarcode();
-          }
-      }
-
-      function stopScanBarcode() {
-          if (html5QrCode) {
-              html5QrCode.stop().then(() => {
-                  document.getElementById('reader').style.display = 'none';
-                  document.getElementById('btnStartScan').style.display = 'inline-flex';
-                  document.getElementById('btnStopScan').style.display = 'none';
-              });
-          }
-      }
-
-      function cariDanTambahKeKasir(kodeScan) {
-          const rowsMaster = document.querySelectorAll("#bodyTabel tr");
-          let dataKetemu = null;
-
-          rowsMaster.forEach((mRow) => {
-              const kodeTabel = mRow.cells[3].innerText.trim();
-              if (kodeScan.trim() === kodeTabel && kodeTabel !== "") {
-                  dataKetemu = {
-                      nama: mRow.cells[1].innerText.trim(),
-                      harga: parseInt(mRow.cells[2].innerText.replace(/[^0-9]/g, "")) || 0
-                  };
-              }
-          });
-
-          if (dataKetemu) {
-              tambahBarisKasirOtomatis(dataKetemu.nama, dataKetemu.harga);
-          }
-      }
-
-      function tambahBarisKasirOtomatis(nama, harga) {
-          const body = document.getElementById("bodyKasir");
-          let barisSudahAda = false;
-
-          document.querySelectorAll(".input-kasir-nama").forEach(input => {
-              if (input.value.toLowerCase() === nama.toLowerCase()) {
-                  const row = input.closest("tr");
-                  const inputJumlah = row.querySelector(".input-kasir-jumlah");
-                  inputJumlah.value = parseInt(inputJumlah.value) + 1;
-                  hitungTransaksi(inputJumlah);
-                  barisSudahAda = true;
-              }
-          });
-
-          if (!barisSudahAda) {
-              const row = body.insertRow(-1);
-              row.innerHTML = `
-                <td><input type="text" class="input-kasir-nama" value="${nama}" oninput="hitungTransaksi(this)"></td>
-                <td><input type="number" class="input-kasir-jumlah" oninput="hitungTransaksi(this)" value="1" min="1"></td>
-                <td class="harga-satuan">Rp ${harga.toLocaleString("id-ID")}</td>
-                <td class="sub-total">Rp ${harga.toLocaleString("id-ID")}</td>
-                <td><button class="btn btn-danger" onclick="hapusBarisKasir(this)">🗑️</button></td>
-              `;
-              updateGrandTotal();
-          }
-      }
-
-      // --- LOGIKA KAMERA FOTO (FITUR ASLI) ---
-      async function startCamera(btn) {
-        currentImgElement = btn.parentElement.querySelector('img');
-        const modal = document.getElementById('cameraModal');
-        const video = document.getElementById('video');
-        modal.style.display = 'flex';
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-          video.srcObject = stream;
-        } catch (err) { alert("Gagal akses kamera: " + err); stopCamera(); }
-      }
-
-      function stopCamera() {
-        const video = document.getElementById('video');
-        const stream = video.srcObject;
-        if (stream) stream.getTracks().forEach(track => track.stop());
-        document.getElementById('cameraModal').style.display = 'none';
-      }
-
-      function takeSnapshot() {
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const context = canvas.getContext('2d');
-        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        currentImgElement.src = canvas.toDataURL('image/jpeg', 0.7);
-        stopCamera();
-      }
-
-      // --- LOGIKA INVENTARIS (FITUR ASLI) ---
+      // --- LOGIKA INVENTARIS ---
       function tambahBarisInventaris() {
-        const body = document.getElementById("bodyTabel");
-        body.classList.remove("locked");
-        const row = body.insertRow(-1);
-        row.innerHTML = `
-          <td align="center">
-            <img src="https://via.placeholder.com/50" class="img-thumbnail">
-            <button class="btn btn-camera" style="padding: 5px; font-size: 10px; width: 100%; margin-top: 5px;" onclick="startCamera(this)">📷 Foto</button>
-          </td>
-          <td contenteditable="true"></td>
-          <td contenteditable="true"></td>
-          <td contenteditable="true"></td>
-          <td><button class="btn btn-danger" onclick="hapusBarisInventaris(this)">🗑️ Hapus</button></td>
-        `;
-        row.cells[1].focus();
-      }
-
+    const body = document.getElementById("bodyTabel");
+    body.classList.remove("locked");
+    const row = body.insertRow(-1);
+    row.innerHTML = `
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td style="display: flex; gap: 5px; align-items: center;">
+            <span class="barcode-val" contenteditable="true" style="flex: 1;"></span>
+            <button class="btn btn-edit" style="padding: 5px;" onclick="startScanner(this)">📷 Scan</button>
+        </td>
+        <td><button class="btn btn-danger" onclick="hapusBarisInventaris(this)">🗑️ Hapus</button></td>
+    `;
+    row.cells[0].focus();
+}
       function hapusBarisInventaris(btn) {
         if(confirm("Hapus barang ini dari daftar?")) {
             btn.closest("tr").remove();
@@ -259,19 +222,20 @@
       function aktifkanEditInventaris() {
         const body = document.getElementById("bodyTabel");
         body.classList.remove("locked");
-        body.querySelectorAll("td:nth-child(2), td:nth-child(3), td:nth-child(4)").forEach(td => td.setAttribute("contenteditable", "true"));
-        alert("✏️ Mode Edit Aktif.");
+        body.querySelectorAll("td:not(:last-child)").forEach(td => td.setAttribute("contenteditable", "true"));
+        alert("✏️ Mode Edit Aktif. Jangan lupa tekan Simpan jika sudah selesai.");
       }
 
       function simpanDataInventaris() {
         const body = document.getElementById("bodyTabel");
-        body.querySelectorAll("td").forEach(td => td.setAttribute("contenteditable", "false"));
+        // Kita simpan HTML-nya tapi pastikan mode edit dimatikan dulu
+        body.querySelectorAll("td:not(:last-child)").forEach(td => td.setAttribute("contenteditable", "false"));
         body.classList.add("locked");
-        localStorage.setItem("dataInventaris_Final", body.innerHTML);
-        alert("✅ Data inventaris & foto berhasil disimpan!");
+        localStorage.setItem("dataInventaris_V4", body.innerHTML);
+        alert("✅ Data inventaris berhasil disimpan!");
       }
 
-      // --- LOGIKA KASIR (FITUR ASLI) ---
+      // --- LOGIKA KASIR ---
       function tambahBarisKasir() {
         const body = document.getElementById("bodyKasir");
         const row = body.insertRow(-1);
@@ -286,7 +250,15 @@
 
       function hapusBarisKasir(btn) {
         const row = btn.closest("tr");
-        row.remove();
+        const body = document.getElementById("bodyKasir");
+        if (body.rows.length > 1) {
+          row.remove();
+        } else {
+          row.querySelector(".input-kasir-nama").value = "";
+          row.querySelector(".input-kasir-jumlah").value = 1;
+          row.querySelector(".harga-satuan").innerText = "Rp 0";
+          row.querySelector(".sub-total").innerText = "Rp 0";
+        }
         updateGrandTotal();
       }
 
@@ -294,12 +266,13 @@
         const row = element.closest("tr");
         const namaInput = row.querySelector(".input-kasir-nama").value.toLowerCase().trim();
         const jumlah = parseInt(row.querySelector(".input-kasir-jumlah").value) || 0;
+
         const rowsMaster = document.querySelectorAll("#bodyTabel tr");
         let hargaDitemukan = 0;
 
         rowsMaster.forEach((mRow) => {
-          const namaTabel = mRow.cells[1].innerText.toLowerCase().trim();
-          const hargaTabel = mRow.cells[2].innerText.replace(/[^0-9]/g, "");
+          const namaTabel = mRow.cells[0].innerText.toLowerCase().trim();
+          const hargaTabel = mRow.cells[1].innerText.replace(/[^0-9]/g, "");
           if (namaInput === namaTabel && namaInput !== "") {
             hargaDitemukan = parseInt(hargaTabel);
           }
@@ -308,9 +281,49 @@
         const subTotal = hargaDitemukan * jumlah;
         row.querySelector(".harga-satuan").innerText = "Rp " + hargaDitemukan.toLocaleString("id-ID");
         row.querySelector(".sub-total").innerText = "Rp " + subTotal.toLocaleString("id-ID");
+
         updateGrandTotal();
       }
+let html5QrCode;
+let activeTargetCell = null;
 
+function startScanner(btn) {
+    // Menentukan target cell (span di samping tombol yang diklik)
+    activeTargetCell = btn.parentElement.querySelector('.barcode-val');
+    
+    const readerDiv = document.getElementById("reader-container");
+    readerDiv.style.display = "block";
+    readerDiv.scrollIntoView({ behavior: 'smooth' });
+
+    html5QrCode = new Html5Qrcode("reader");
+    const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+
+    html5QrCode.start(
+        { facingMode: "environment" }, // Gunakan kamera belakang
+        config,
+        (decodedText) => {
+            // Jika berhasil scan
+            activeTargetCell.innerText = decodedText;
+            stopScanner();
+            alert("Barcode Berhasil Discan: " + decodedText);
+        },
+        (errorMessage) => {
+            // Abaikan error scanning rutin (mencari barcode)
+        }
+    ).catch((err) => {
+        alert("Gagal mengakses kamera: " + err);
+    });
+}
+
+function stopScanner() {
+    if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+            document.getElementById("reader-container").style.display = "none";
+        }).catch(err => console.log(err));
+    } else {
+        document.getElementById("reader-container").style.display = "none";
+    }
+}
       function updateGrandTotal() {
         let totalSemua = 0;
         document.querySelectorAll(".sub-total").forEach((st) => {
@@ -325,38 +338,97 @@
         const total = parseInt(document.getElementById("grandTotal").innerText.replace(/[^0-9]/g, "")) || 0;
         const bayar = parseInt(document.getElementById("inputBayar").value) || 0;
         const kembalian = bayar - total;
+        
         const elemenKembali = document.getElementById("uangKembali");
         elemenKembali.innerText = "Rp " + (kembalian < 0 ? 0 : kembalian).toLocaleString("id-ID");
         elemenKembali.style.background = kembalian < 0 ? "#e74c3c" : "#2ecc71";
       }
 
+      // --- CETAK STRUK ---
       function cetakStrukIndomaret() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ unit: "mm", format: [80, 150] });
+        const lebarKertas = 80;
+        const margin = 5;
         let y = 10;
-        doc.setFont("courier", "bold").setFontSize(12).text("WARUNG CS", 40, y, { align: "center" });
-        y += 10;
-        doc.setFontSize(8).setFont("courier", "normal").text(`Tgl : ${new Date().toLocaleString("id-ID")}`, 5, y);
+
+        doc.setFont("courier", "bold");
+        doc.setFontSize(12);
+        doc.text("WARUNG CS", lebarKertas / 2, y, { align: "center" });
         y += 5;
+        doc.setFontSize(8);
+        doc.setFont("courier", "normal");
+        doc.text("Kavling Kabil Indah Blok A6", lebarKertas / 2, y, { align: "center" });
+        y += 7;
+        doc.text(`Tgl : ${new Date().toLocaleString("id-ID")}`, margin, y);
+        y += 4;
+        doc.text("------------------------------------------", lebarKertas / 2, y, { align: "center" });
+        y += 5;
+
         document.querySelectorAll("#bodyKasir tr").forEach((row) => {
           const nama = row.querySelector(".input-kasir-nama").value;
           const jumlah = row.querySelector(".input-kasir-jumlah").value;
+          const harga = row.querySelector(".harga-satuan").innerText;
           const subtotal = row.querySelector(".sub-total").innerText;
+
           if (nama) {
-            doc.text(`${nama.toUpperCase()} x${jumlah}`, 5, y);
-            doc.text(subtotal, 75, y, { align: "right" });
+            doc.text(nama.toUpperCase(), margin, y);
+            y += 4;
+            doc.text(`${jumlah} x ${harga}`, margin + 2, y);
+            doc.text(subtotal, lebarKertas - margin, y, { align: "right" });
             y += 5;
           }
         });
+
+        y += 2;
+        doc.text("------------------------------------------", lebarKertas / 2, y, { align: "center" });
+        y += 6;
+        doc.setFont("courier", "bold");
+        doc.text("TOTAL     :", margin, y);
+        doc.text(document.getElementById("grandTotal").innerText, lebarKertas - margin, y, { align: "right" });
         y += 5;
-        doc.setFont("courier", "bold").text("TOTAL: " + document.getElementById("grandTotal").innerText, 5, y);
+        doc.text("TUNAI     :", margin, y);
+        doc.text("Rp " + (parseInt(document.getElementById("inputBayar").value) || 0).toLocaleString("id-ID"), lebarKertas - margin, y, { align: "right" });
+        y += 5;
+        doc.text("KEMBALI   :", margin, y);
+        doc.text(document.getElementById("uangKembali").innerText, lebarKertas - margin, y, { align: "right" });
+        
+        y += 10;
+        doc.setFontSize(8);
+        doc.text("TERIMA KASIH", lebarKertas / 2, y, { align: "center"
+          
+         });
+
+     y += 5;
+doc.setFont("courier", "bold");
+doc.text("SELAMAT DATANG KEMBALI:>", lebarKertas / 2, y, { align: "center" });
+
+y += 8;
+doc.setFontSize(7);
+doc.setFont("courier", "normal"); // Mengatur ke huruf biasa (tidak bold)
+doc.text("barang yang sudah dibeli", lebarKertas / 2, y, { align: "center" }); // Huruf kecil
+
+y += 4;
+doc.text("tidak dapat ditukar/dikembalikan", lebarKertas / 2, y, { align: "center" }); // Huruf kecil
         doc.save(`STRUK_${Date.now()}.pdf`);
       }
 
       window.onload = function () {
-        const saved = localStorage.getItem("dataInventaris_Final");
-        if (saved) document.getElementById("bodyTabel").innerHTML = saved;
-        if (document.getElementById("bodyKasir").rows.length === 0) tambahBarisKasir();
+        const saved = localStorage.getItem("dataInventaris_V4");
+        const body = document.getElementById("bodyTabel");
+        if (saved) {
+          body.innerHTML = saved;
+        } else {
+          // Data default jika kosong
+          body.innerHTML = `
+            <tr>
+              <td contenteditable="false">Beras</td>
+              <td contenteditable="false">15000</td>
+              <td contenteditable="false">001</td>
+              <td><button class="btn btn-danger" onclick="hapusBarisInventaris(this)">🗑️ Hapus</button></td>
+            </tr>
+          `;
+        }
       };
     </script>
   </body>
